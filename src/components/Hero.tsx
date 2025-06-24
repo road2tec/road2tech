@@ -2,7 +2,7 @@
 
 import { IconBrandWhatsapp } from "@tabler/icons-react";
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 export default function Hero() {
@@ -10,11 +10,34 @@ export default function Hero() {
     name: "",
     email: "",
     phone: "",
+    district: "",
     degree: "",
     field: "",
     passoutYear: "",
     experience: "",
   });
+  const [numbers, setNumbers] = useState({
+    technicalNumber: "",
+    nonTechnicalNumber: "",
+    medicalMobileNumber: "",
+  });
+
+  useEffect(() => {
+    const fetchNumbers = async () => {
+      try {
+        const response = await axios.get("/api/number");
+        setNumbers(response.data);
+      } catch (error) {
+        console.error("Failed to fetch numbers:", error);
+        setNumbers({
+          technicalNumber: "",
+          nonTechnicalNumber: "",
+          medicalMobileNumber: "",
+        });
+      }
+    };
+    fetchNumbers();
+  }, []);
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
@@ -31,6 +54,7 @@ export default function Hero() {
       !trimmedForm.email ||
       !trimmedForm.phone ||
       !trimmedForm.degree ||
+      !trimmedForm.district ||
       (trimmedForm.degree === "B.Tech" && !trimmedForm.field) ||
       !trimmedForm.passoutYear ||
       !trimmedForm.experience
@@ -70,10 +94,38 @@ export default function Hero() {
     return null;
   };
 
+  const identifyPhoneNumber = (degree: string) => {
+    if (
+      !numbers.technicalNumber ||
+      !numbers.nonTechnicalNumber ||
+      !numbers.medicalMobileNumber
+    ) {
+      console.warn("Phone numbers are not loaded yet.");
+      return "";
+    }
+    switch (degree) {
+      case "B.Tech":
+      case "M.Tech":
+      case "BCA":
+      case "MCA":
+      case "B.Sc":
+      case "M.Sc":
+        return numbers.technicalNumber;
+      case "MBBS":
+      case "BDS":
+      case "BAMS":
+      case "BPT":
+        return numbers.medicalMobileNumber;
+      default:
+        return numbers.nonTechnicalNumber;
+    }
+  };
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     const errorMessage = validateForm(form);
-
+    const phoneNumber = identifyPhoneNumber(form.degree);
+    console.log("Phone Number:", phoneNumber);
     if (errorMessage) {
       toast.error(errorMessage);
       return;
@@ -92,13 +144,17 @@ export default function Hero() {
           name: "",
           email: "",
           phone: "",
+          district: "",
           degree: "",
           field: "",
           passoutYear: "",
           experience: "",
         });
 
-        window.open(`https://wa.me/919607702903?${query.toString()}`, "_blank");
+        window.open(
+          `https://wa.me/${phoneNumber}?${query.toString()}`,
+          "_blank"
+        );
         return "Registration successful!";
       },
       error: "Registration failed. Please try again.",
@@ -123,7 +179,7 @@ export default function Hero() {
 
       <form
         onSubmit={handleSubmit}
-        className="bg-base-200 p-6 rounded-2xl shadow-lg w-full max-w-7xl flex flex-wrap gap-4 justify-center items-center"
+        className="bg-base-200 p-6 rounded-2xl shadow-lg w-full px-10 flex flex-wrap gap-4 justify-center items-center"
       >
         <input
           type="text"
@@ -161,33 +217,41 @@ export default function Hero() {
           className="select select-bordered select-primary w-full sm:w-auto"
         >
           <option value="">Select Degree</option>
-          <option value="B.Tech">B.Tech</option>
-          <option value="BCA">BCA</option>
-          <option value="BCS">BCS</option>
-          <option value="BBA">BBA</option>
-          <option value="B.Com">B.Com</option>
-          <option value="BA">BA</option>
-          <option value="B.Sc">B.Sc</option>
-          <option value="B.Arch">B.Arch</option>
-          <option value="B.Ed">B.Ed</option>
-          <option value="BHM">BHM</option>
-          <option value="BDS">BDS</option>
-          <option value="MBBS">MBBS</option>
-          <option value="BAMS">BAMS</option>
-          <option value="BPT">BPT</option>
-          <option value="B.Voc">B.Voc</option>
-          <option value="BPharm">BPharm</option>
-          <option value="M.Tech">M.Tech</option>
-          <option value="MCA">MCA</option>
-          <option value="M.Sc">M.Sc</option>
-          <option value="MBA">MBA</option>
-          <option value="M.Com">M.Com</option>
-          <option value="MA">MA</option>
-          <option value="M.Arch">M.Arch</option>
-          <option value="M.Ed">M.Ed</option>
-          <option value="MPT">MPT</option>
-          <option value="MSW">MSW</option>
-          <option value="PhD">PhD</option>
+          <optgroup label="Technical">
+            <option value="B.Tech">B.Tech</option>
+            <option value="BCA">BCA</option>
+            <option value="BCS">BCS</option>
+            <option value="B.Arch">B.Arch</option>
+            <option value="B.Sc">B.Sc</option>
+            <option value="B.Voc">B.Voc</option>
+            <option value="BPharm">BPharm</option>
+            <option value="M.Tech">M.Tech</option>
+            <option value="MCA">MCA</option>
+            <option value="M.Sc">M.Sc</option>
+            <option value="M.Arch">M.Arch</option>
+          </optgroup>
+
+          <optgroup label="Medical">
+            <option value="MBBS">MBBS</option>
+            <option value="BDS">BDS</option>
+            <option value="BAMS">BAMS</option>
+            <option value="BPT">BPT</option>
+            <option value="MPT">MPT</option>
+          </optgroup>
+
+          <optgroup label="Non-Technical">
+            <option value="BBA">BBA</option>
+            <option value="B.Com">B.Com</option>
+            <option value="BA">BA</option>
+            <option value="B.Ed">B.Ed</option>
+            <option value="BHM">BHM</option>
+            <option value="MBA">MBA</option>
+            <option value="M.Com">M.Com</option>
+            <option value="MA">MA</option>
+            <option value="M.Ed">M.Ed</option>
+            <option value="MSW">MSW</option>
+            <option value="PhD">PhD</option>
+          </optgroup>
         </select>
 
         {form.degree === "B.Tech" && (
@@ -219,6 +283,55 @@ export default function Hero() {
         />
 
         <select
+          name="district"
+          value={form.district}
+          onChange={handleChange}
+          required
+          className="select select-bordered select-primary w-full sm:w-auto"
+        >
+          <option value="">Select District</option>
+          <option value="Ahmednagar">Ahmednagar</option>
+          <option value="Akola">Akola</option>
+          <option value="Amravati">Amravati</option>
+          <option value="Aurangabad">Aurangabad</option>
+          <option value="Beed">Beed</option>
+          <option value="Bhandara">Bhandara</option>
+          <option value="Buldhana">Buldhana</option>
+          <option value="Chandrapur">Chandrapur</option>
+          <option value="Dhule">Dhule</option>
+          <option value="Gadchiroli">Gadchiroli</option>
+          <option value="Galbarga">Galbarga</option>
+          <option value="Gondia">Gondia</option>
+          <option value="Hingoli">Hingoli</option>
+          <option value="Jalgaon">Jalgaon</option>
+          <option value="Jalna">Jalna</option>
+          <option value="Kolhapur">Kolhapur</option>
+          <option value="Latur">Latur</option>
+          <option value="Mumbai City">Mumbai City</option>
+          <option value="Mumbai Suburban">Mumbai Suburban</option>
+          <option value="Nagpur">Nagpur</option>
+          <option value="Nanded">Nanded</option>
+          <option value="Nandurbar">Nandurbar</option>
+          <option value="Nashik">Nashik</option>
+          <option value="Osmanabad">Osmanabad</option>
+          <option value="Palghar">Palghar</option>
+          <option value="Parbhani">Parbhani</option>
+          <option value="Pune">Pune</option>
+          <option value="Raigad">Raigad</option>
+          <option value="Ratnagiri">Ratnagiri</option>
+          <option value="Sakri">Sakri</option>
+          <option value="Sangli">Sangli</option>
+          <option value="Satara">Satara</option>
+          <option value="Sindhudurg">Sindhudurg</option>
+          <option value="Solapur">Solapur</option>
+          <option value="Thane">Thane</option>
+          <option value="Wardha">Wardha</option>
+          <option value="Washim">Washim</option>
+          <option value="Yavatmal">Yavatmal</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <select
           name="experience"
           value={form.experience}
           onChange={handleChange}
@@ -229,7 +342,9 @@ export default function Hero() {
           <option value="Fresher">Fresher</option>
           <option value="0-1 Year">0-1 Year</option>
           <option value="1-2 Years">1-2 Years</option>
-          <option value="2+ Years">2+ Years</option>
+          <option value="2-3 Years">2-3 Years </option>
+          <option value="3+ Years">3+ Years</option>
+          <option value="5+ Years">5+ Years</option>
         </select>
 
         <button

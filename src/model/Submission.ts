@@ -20,6 +20,11 @@ const SubmissionModelSchema = new Schema({
     type: String,
     required: true,
   },
+  district: {
+    type: String,
+    required: true,
+    trim: true,
+  },
   field: {
     type: String,
     default: null,
