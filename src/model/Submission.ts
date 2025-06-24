@@ -11,14 +11,17 @@ const SubmissionModelSchema = new Schema({
     required: true,
     trim: true,
   },
+  phone: {
+    type: String,
+    required: true,
+    trim: true,
+  },
   degree: {
     type: String,
     required: true,
-    enum: ["B.Tech", "BCA", "BCS", "Non-Tech"],
   },
   field: {
     type: String,
-    enum: ["CSE", "IT", "ECE", "Mechanical", "Civil", "Electrical"],
     default: null,
   },
   passoutYear: {

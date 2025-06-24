@@ -1,22 +1,248 @@
-import { IconArrowNarrowRight } from "@tabler/icons-react";
+"use client";
+
+import { IconBrandWhatsapp } from "@tabler/icons-react";
+import axios from "axios";
+import { useState } from "react";
+import toast from "react-hot-toast";
 
 export default function Hero() {
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    degree: "",
+    field: "",
+    passoutYear: "",
+    experience: "",
+  });
+
+  const handleChange = (e: any) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const validateForm = (form: any) => {
+    const trimmedForm = Object.fromEntries(
+      Object.entries(form).map(([key, value]) => [key, value.trim?.() ?? value])
+    );
+
+    if (
+      !trimmedForm.name ||
+      !trimmedForm.email ||
+      !trimmedForm.phone ||
+      !trimmedForm.degree ||
+      (trimmedForm.degree === "B.Tech" && !trimmedForm.field) ||
+      !trimmedForm.passoutYear ||
+      !trimmedForm.experience
+    ) {
+      return "Please fill all required fields.";
+    }
+
+    if (!/^\d{10}$/.test(trimmedForm.phone)) {
+      return "Please enter a valid 10-digit mobile number.";
+    }
+
+    const currentYear = new Date().getFullYear();
+    if (
+      !/^\d{4}$/.test(trimmedForm.passoutYear) ||
+      +trimmedForm.passoutYear < 1950 ||
+      +trimmedForm.passoutYear > currentYear
+    ) {
+      return `Please enter a valid passout year (1950-${currentYear}).`;
+    }
+
+    if (
+      trimmedForm.experience !== "Fresher" &&
+      !/^\d+(\.\d+)?\s*(Year|Years)$/.test(trimmedForm.experience)
+    ) {
+      return "Please select a valid experience level.";
+    }
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(trimmedForm.email)) {
+      return "Please enter a valid email address.";
+    }
+
+    const hasInvalidChars = /[<>;]/.test(trimmedForm.name);
+    if (hasInvalidChars) {
+      return "Please avoid special characters in the name.";
+    }
+    return null;
+  };
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    const errorMessage = validateForm(form);
+
+    if (errorMessage) {
+      toast.error(errorMessage);
+      return;
+    }
+
+    const res = axios.post("/api/submission/register", { form });
+
+    toast.promise(res, {
+      loading: "Submitting...",
+      success: () => {
+        const query = new URLSearchParams({
+          text: `After saving the above number under the name 'Road2tech', your service will be activated immediately.\n\n`,
+        });
+
+        setForm({
+          name: "",
+          email: "",
+          phone: "",
+          degree: "",
+          field: "",
+          passoutYear: "",
+          experience: "",
+        });
+
+        window.open(`https://wa.me/919607702903?${query.toString()}`, "_blank");
+        return "Registration successful!";
+      },
+      error: "Registration failed. Please try again.",
+    });
+  };
+
   return (
-    <section className="px-6 pt-20 pb-10 text-center relative min-h-[calc(100vh-80px)] bg-base-300 flex flex-col items-center justify-center">
+    <section className="bg-base-300 h-[calc(100vh-80px)] py-12 px-4 text-center flex flex-col items-center justify-center">
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500" />
-      <h2 className="text-xs tracking-widest text-base-content/60 mb-2">
-        NOW ACCEPTING CANDIDATES
-      </h2>
-      <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight leading-tight mb-4 bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
-        Kickstart Your Career with Road2Tech
+
+      <h1 className="text-3xl md:text-4xl font-bold mb-2 text-base-content">
+        Kickstart Your Career, Now on{" "}
+        <span className="inline-flex items-center gap-1 text-green-600">
+          <IconBrandWhatsapp size={28} /> WhatsApp
+        </span>
       </h1>
-      <p className="text-base-content/60 max-w-xl mx-auto text-base mb-6">
-        Your gateway to career opportunities in tech and non-tech sectors.
-        Submit your details and let us connect you with opportunities.
+      <p className="text-base text-base-content/60 mb-6">
+        Join the Road2Tech WhatsApp Group and get the latest job openings,
+        internships, and career opportunities right on your phone — absolutely
+        free!
       </p>
-      <a href="#register" className="btn btn-accent btn-outline rounded-full">
-        Register Now <IconArrowNarrowRight size={16} />
-      </a>
+
+      <form
+        onSubmit={handleSubmit}
+        className="bg-base-200 p-6 rounded-2xl shadow-lg w-full max-w-7xl flex flex-wrap gap-4 justify-center items-center"
+      >
+        <input
+          type="text"
+          name="name"
+          placeholder="Your Name"
+          value={form.name}
+          onChange={handleChange}
+          required
+          className="input input-bordered input-primary w-full sm:w-auto"
+        />
+        <input
+          type="email"
+          name="email"
+          placeholder="Your Email"
+          value={form.email}
+          onChange={handleChange}
+          required
+          className="input input-bordered input-primary w-full sm:w-auto"
+        />
+        <input
+          type="tel"
+          name="phone"
+          placeholder="10-digit Mobile Number"
+          value={form.phone}
+          onChange={handleChange}
+          required
+          className="input input-bordered input-primary w-full sm:w-auto"
+        />
+
+        <select
+          name="degree"
+          value={form.degree}
+          onChange={handleChange}
+          required
+          className="select select-bordered select-primary w-full sm:w-auto"
+        >
+          <option value="">Select Degree</option>
+          <option value="B.Tech">B.Tech</option>
+          <option value="BCA">BCA</option>
+          <option value="BCS">BCS</option>
+          <option value="BBA">BBA</option>
+          <option value="B.Com">B.Com</option>
+          <option value="BA">BA</option>
+          <option value="B.Sc">B.Sc</option>
+          <option value="B.Arch">B.Arch</option>
+          <option value="B.Ed">B.Ed</option>
+          <option value="BHM">BHM</option>
+          <option value="BDS">BDS</option>
+          <option value="MBBS">MBBS</option>
+          <option value="BAMS">BAMS</option>
+          <option value="BPT">BPT</option>
+          <option value="B.Voc">B.Voc</option>
+          <option value="BPharm">BPharm</option>
+          <option value="M.Tech">M.Tech</option>
+          <option value="MCA">MCA</option>
+          <option value="M.Sc">M.Sc</option>
+          <option value="MBA">MBA</option>
+          <option value="M.Com">M.Com</option>
+          <option value="MA">MA</option>
+          <option value="M.Arch">M.Arch</option>
+          <option value="M.Ed">M.Ed</option>
+          <option value="MPT">MPT</option>
+          <option value="MSW">MSW</option>
+          <option value="PhD">PhD</option>
+        </select>
+
+        {form.degree === "B.Tech" && (
+          <select
+            name="field"
+            value={form.field}
+            onChange={handleChange}
+            required
+            className="select select-bordered select-primary w-full sm:w-auto"
+          >
+            <option value="">Select Branch</option>
+            <option value="CSE">CSE</option>
+            <option value="IT">IT</option>
+            <option value="ECE">ECE</option>
+            <option value="EEE">EEE</option>
+            <option value="Mechanical">Mechanical</option>
+            <option value="Civil">Civil</option>
+            <option value="Other">Other</option>
+          </select>
+        )}
+
+        <input
+          type="text"
+          name="passoutYear"
+          placeholder="Passout Year (e.g. 2024)"
+          value={form.passoutYear}
+          onChange={handleChange}
+          className="input input-bordered input-primary w-full sm:w-auto"
+        />
+
+        <select
+          name="experience"
+          value={form.experience}
+          onChange={handleChange}
+          required
+          className="select select-bordered select-primary w-full sm:w-auto"
+        >
+          <option value="">Select Experience</option>
+          <option value="Fresher">Fresher</option>
+          <option value="0-1 Year">0-1 Year</option>
+          <option value="1-2 Years">1-2 Years</option>
+          <option value="2+ Years">2+ Years</option>
+        </select>
+
+        <button
+          type="submit"
+          className="btn btn-success font-semibold tracking-wide"
+        >
+          🚀 Submit
+        </button>
+      </form>
+
+      <p className="mt-8 text-sm text-base-content/50">
+        © Road2Tech, All Rights Reserved
+      </p>
     </section>
   );
 }
