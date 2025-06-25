@@ -81,7 +81,7 @@ export default function Hero() {
       +trimmedForm.passoutYear < 1950 ||
       +trimmedForm.passoutYear > currentYear + 4 // Allowing up to 4 years in the future for students
     ) {
-      return `Please enter a valid passout year (1950-${currentYear}).`;
+      return `Please enter a valid passout year (1950-${currentYear + 4}).`;
     }
 
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
