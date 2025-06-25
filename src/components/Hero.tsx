@@ -70,16 +70,9 @@ export default function Hero() {
     if (
       !/^\d{4}$/.test(trimmedForm.passoutYear) ||
       +trimmedForm.passoutYear < 1950 ||
-      +trimmedForm.passoutYear > currentYear
+      +trimmedForm.passoutYear > currentYear + 4 // Allowing up to 4 years in the future for students
     ) {
       return `Please enter a valid passout year (1950-${currentYear}).`;
-    }
-
-    if (
-      trimmedForm.experience !== "Fresher" &&
-      !/^\d+(\.\d+)?\s*(Year|Years)$/.test(trimmedForm.experience)
-    ) {
-      return "Please select a valid experience level.";
     }
 
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -125,7 +118,6 @@ export default function Hero() {
     e.preventDefault();
     const errorMessage = validateForm(form);
     const phoneNumber = identifyPhoneNumber(form.degree);
-    console.log("Phone Number:", phoneNumber);
     if (errorMessage) {
       toast.error(errorMessage);
       return;
@@ -137,7 +129,7 @@ export default function Hero() {
       loading: "Submitting...",
       success: () => {
         const query = new URLSearchParams({
-          text: `After saving the above number under the name 'Road2tech', your service will be activated immediately.\n\n`,
+          text: `After saving the above number under the name 'Road2JOB', your service will be activated immediately.\n\n`,
         });
 
         setForm({
