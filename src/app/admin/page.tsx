@@ -17,7 +17,7 @@ const AdminDashboard = () => {
   const [districtFilter, setDistrictFilter] = useState("");
   const [passoutYearFilter, setPassoutYearFilter] = useState("");
 
-  const handleNumberChange = (e) => {
+  const handleNumberChange = (e: any) => {
     const { name, value } = e.target;
     setNumber((prev) => ({ ...prev, [name]: value }));
   };

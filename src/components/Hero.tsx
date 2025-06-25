@@ -44,7 +44,16 @@ export default function Hero() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const validateForm = (form: any) => {
+  const validateForm = (form: {
+    name: string;
+    email: string;
+    phone: string;
+    district: string;
+    degree: string;
+    field?: string;
+    passoutYear: string;
+    experience: string;
+  }) => {
     const trimmedForm = Object.fromEntries(
       Object.entries(form).map(([key, value]) => [key, value.trim?.() ?? value])
     );
