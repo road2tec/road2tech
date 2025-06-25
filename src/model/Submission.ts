@@ -37,7 +37,6 @@ const SubmissionModelSchema = new Schema({
   experience: {
     type: String,
     required: true,
-    enum: ["Fresher", "0-1 Year", "1-2 Years", "2+ Years"],
   },
 });
 

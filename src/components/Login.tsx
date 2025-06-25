@@ -1,5 +1,6 @@
 "use client";
 
+import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
@@ -23,9 +24,24 @@ const LoginModal = () => {
       credentials.email === "admin@road2tech.in" &&
       credentials.password === "Admin@1234"
     ) {
-      toast.success("Login successful");
-      (document.getElementById("login_modal") as HTMLDialogElement)?.close();
-      router.push("/admin");
+      const res = axios.post("/api/auth/login", {
+        email: credentials.email,
+        password: credentials.password,
+      });
+      toast.promise(res, {
+        loading: "Logging in...",
+        success: () => {
+          (
+            document.getElementById("login_modal") as HTMLDialogElement
+          )?.close();
+          router.push("/admin");
+          return "Login successful!";
+        },
+        error: (error) => {
+          console.error(error);
+          return "Login failed. Please try again.";
+        },
+      });
     } else {
       toast.error("Invalid credentials");
     }
