@@ -163,7 +163,7 @@ export default function Hero() {
   };
 
   return (
-    <section className="bg-base-300 h-[calc(100vh-80px)] py-12 px-4 text-center flex flex-col items-center justify-center">
+    <section className="bg-base-300 min-h-[calc(100vh-80px)] py-12 px-4 text-center flex flex-col items-center justify-center">
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500" />
 
       <h1 className="text-3xl md:text-4xl font-bold mb-2 text-base-content">
