@@ -153,7 +153,7 @@ export default function Hero() {
         });
 
         window.open(
-          `https://wa.me/${phoneNumber}?${query.toString()}`,
+          `https://wa.me/+91${phoneNumber}?${query.toString()}`,
           "_blank"
         );
         return "Registration successful!";
